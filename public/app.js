@@ -669,4 +669,4 @@ $('#btnAbout').onclick = () => openModal(`<h2>About BharatCiv</h2>
 <li>World Heritage, national parks, universities, ports, mines, dams — <a href="https://query.wikidata.org/" target="_blank" rel="noopener">Wikidata</a></li>
 <li>University ranks — <a href="https://www.nirfindia.org/" target="_blank" rel="noopener">NIRF 2024</a> (overall)</li></ul>
 <h3>Caveats</h3><p class="muted">Census figures are from 2011 (the latest full census); districts and states follow 2011 boundaries, with Telangana and Ladakh split out for GDP. GDP below state level is a modelled estimate. Terrain is climate-derived, not satellite land cover. Wikidata coverage of ports, mines and universities is incomplete.</p>
-<p><a href="https://github.com/" id="srcLink" target="_blank" rel="noopener">Source code on GitHub</a></p>`);
+<p><a href="https://github.com/prathmesh-garule/bharatciv" id="srcLink" target="_blank" rel="noopener">Source code on GitHub</a></p>`);
