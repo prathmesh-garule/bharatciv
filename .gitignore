@@ -6,3 +6,6 @@ __pycache__/
 .claude/settings.local.json
 
 .vercel
+trailer/frames/
+trailer/out/
+trailer/capture_log.txt

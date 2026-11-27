@@ -33,19 +33,19 @@ function prepare() {
   D.codes.forEach((c, i) => DI[c] = i);
   for (let i = 0; i < H.N; i++) { if (!H.land[i]) continue; (distHexes[H.d[i]] ||= []).push(i); }
   CITIES.sort((a, b) => b.pop - a.pop).forEach((c, k) => { c.rank = k + 1; if (!cityAt[c.h]) cityAt[c.h] = c; });
-  const add = (h, ic, t, kind, o) => { if (h == null) return; (featAt[h] ||= []).push({ ic, t, kind, o }); };
-  F.whs.forEach(w => add(w.h, '🏛️', w.n, 'wonder', w));
-  F.nirf.forEach(u => add(u.h, '📜', u.full + ' (NIRF #' + u.rank + ')', 'wonder', u));
-  F.holy.forEach(w => add(w.h, '🛕', w.n + ' — ' + w.rel + ' holy site', 'wonder', w));
+  const add = (h, ic, t, kind, o, sp) => { if (h == null) return; (featAt[h] ||= []).push({ ic, t, kind, o, sp }); };
+  F.whs.forEach(w => add(w.h, '🏛️', w.n, 'wonder', w, 'whs'));
+  F.nirf.forEach(u => add(u.h, '📜', u.full + ' (NIRF #' + u.rank + ')', 'wonder', u, 'library'));
+  F.holy.forEach(w => add(w.h, '🛕', w.n + ' — ' + w.rel + ' holy site', 'wonder', w, 'temple'));
   const bigParks = F.parks.filter(p => p.area).sort((a, b) => b.area - a.area).slice(0, 12);
-  bigParks.forEach(p => add(p.h, '🏞️', p.n + ' — ' + fmt(p.area) + ' km² (natural wonder)', 'wonder', p));
-  F.parks.filter(p => !bigParks.includes(p)).forEach(p => add(p.h, '🌳', p.n + ' (national park)', 'park', p));
+  bigParks.forEach(p => add(p.h, '🏞️', p.n + ' — ' + fmt(p.area) + ' km² (natural wonder)', 'wonder', p, 'natural'));
+  F.parks.filter(p => !bigParks.includes(p)).forEach(p => add(p.h, '🌳', p.n + ' (national park)', 'park', p, 'park'));
   const FUEL = { Coal: '⚫', Hydro: '💧', Nuclear: '☢️', Solar: '☀️', Wind: '🌬️', Gas: '🔥', Oil: '🛢️', Biomass: '🌾' };
-  F.plants.filter(p => p.mw >= 500).forEach(p => add(p.h, FUEL[p.f] || '⚡', p.n + ' — ' + fmt(p.mw) + ' MW ' + p.f, 'power', p));
+  F.plants.filter(p => p.mw >= 500).forEach(p => add(p.h, FUEL[p.f] || '⚡', p.n + ' — ' + fmt(p.mw) + ' MW ' + p.f, 'power', p, p.f.toLowerCase()));
   const RES = { coal: '⚫', iron: '⛓️', copper: '🟠', gold: '🟡', diamond: '💎', aluminium: '🔩', uranium: '☢️', zinc: '🔘', manganese: '🟣', limestone: '🪨', mica: '✨', marble: '⬜', salt: '🧂', mine: '⛏️' };
-  F.mines.forEach(m => add(m.h, RES[m.res] || '⛏️', m.n + ' (' + m.res + ' mine)', 'resource', m));
-  F.ports.forEach(p => add(p.h, '⚓', p.n + (p.major ? ' (major port)' : ''), 'port', p));
-  F.airports.forEach(a => add(a.h, '✈️', a.n + (a.iata ? ' (' + a.iata + ')' : ''), 'airport', a));
+  F.mines.forEach(m => add(m.h, RES[m.res] || '⛏️', m.n + ' (' + m.res + ' mine)', 'resource', m, m.res));
+  F.ports.forEach(p => add(p.h, '⚓', p.n + (p.major ? ' (major port)' : ''), 'port', p, 'port'));
+  F.airports.forEach(a => add(a.h, '✈️', a.n + (a.iata ? ' (' + a.iata + ')' : ''), 'airport', a, 'airport'));
   // hex polygon offsets
   HEXV = []; for (let k = 0; k < 6; k++) { const a = Math.PI / 180 * (60 * k - 30); HEXV.push([R * Math.cos(a), R * Math.sin(a)]); }
   // district-level numeric columns available to explorer/lenses
@@ -213,7 +213,7 @@ function render() {
   for (const i of vis) (byCol[colors[i]] ||= []).push(i);
   for (const c in byCol) { ctx.beginPath(); for (const i of byCol[c]) hexPath(i, 1.02); ctx.fillStyle = c; ctx.fill(); }
   if (px > 7) { ctx.beginPath(); for (const i of vis) if (H.land[i]) hexPath(i); ctx.strokeStyle = 'rgba(0,0,0,0.16)'; ctx.lineWidth = 1; ctx.stroke(); }
-  if (l.kind === 'terrain' && px > 9) glyphs(vis, px);
+  if (l.kind === 'terrain' && px > 7) glyphs(vis, px);
   // rivers
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   ctx.strokeStyle = l.kind === 'terrain' ? '#3d8fd1' : 'rgba(90,170,240,0.55)';
@@ -249,31 +249,22 @@ function render() {
   if (S.sel >= 0) { ctx.beginPath(); hexPath(S.sel, 0.95); ctx.strokeStyle = '#f3d27a'; ctx.lineWidth = 3; ctx.stroke(); }
   if (S.hover >= 0) { ctx.beginPath(); hexPath(S.hover, 0.95); ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.lineWidth = 1.5; ctx.stroke(); }
   if (px > 13) icons(vis, px);
-  if (px > 26) yieldPips(vis, px);
+  if (px > 55) yieldPips(vis, px);
   cityBanners(px);
 }
 function glyphs(vis, px) {
-  for (const i of vis) {
-    const f = H.feature[i]; if (!f || !H.land[i]) continue;
-    const [x, y] = toS(H.x[i], H.y[i]); const s = px;
-    if (f === 2) { // mountain peaks
-      ctx.fillStyle = '#5d554c'; ctx.beginPath(); ctx.moveTo(x - s * .6, y + s * .35); ctx.lineTo(x - s * .15, y - s * .5); ctx.lineTo(x + s * .3, y + s * .35); ctx.fill();
-      ctx.fillStyle = '#6d655b'; ctx.beginPath(); ctx.moveTo(x - s * .05, y + s * .35); ctx.lineTo(x + s * .3, y - s * .25); ctx.lineTo(x + s * .65, y + s * .35); ctx.fill();
-      ctx.fillStyle = '#f4f6f8'; ctx.beginPath(); ctx.moveTo(x - s * .28, y - s * .26); ctx.lineTo(x - s * .15, y - s * .5); ctx.lineTo(x - s * .02, y - s * .26); ctx.fill();
-    } else if (f === 1) { // hills bumps
-      ctx.strokeStyle = 'rgba(60,40,20,0.45)'; ctx.lineWidth = Math.max(1, s * .07);
-      ctx.beginPath(); ctx.arc(x - s * .25, y + s * .2, s * .28, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
-      ctx.beginPath(); ctx.arc(x + s * .25, y + s * .05, s * .24, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke();
-    } else if (f === 3 || f === 4) { // trees
-      ctx.fillStyle = f === 4 ? '#1b4a1d' : '#2c5a22';
-      for (const [dx, dy] of [[-.35, .15], [.05, -.2], [.35, .2], [-.05, .35]]) { ctx.beginPath(); ctx.moveTo(x + dx * s, y + (dy - .25) * s); ctx.lineTo(x + (dx - .15) * s, y + (dy + .12) * s); ctx.lineTo(x + (dx + .15) * s, y + (dy + .12) * s); ctx.fill(); }
-    } else if (f === 5) {
-      ctx.strokeStyle = 'rgba(70,110,40,0.55)'; ctx.lineWidth = 1;
-      for (let k = -1; k <= 1; k++) { ctx.beginPath(); ctx.moveTo(x - s * .5, y + k * s * .25); ctx.lineTo(x + s * .5, y + k * s * .25); ctx.stroke(); }
-    } else if (f === 6) {
-      ctx.strokeStyle = 'rgba(30,60,50,0.7)'; ctx.lineWidth = 1;
-      for (const dx of [-.3, 0, .3]) { ctx.beginPath(); ctx.moveTo(x + dx * s, y + s * .25); ctx.lineTo(x + dx * s, y - s * .15); ctx.stroke(); }
-    }
+  // illustrated terrain props, painted back-to-front so they overlap like 3D
+  const list = vis.filter(i => H.land[i] && H.feature[i]).sort((a, b) => H.y[b] - H.y[a]);
+  for (const i of list) {
+    const f = H.feature[i], [x, y] = toS(H.x[i], H.y[i]);
+    let key, k = 1.8;
+    if (f === 2) { key = H.elev[i] > 3000 ? 'snowpeak' : 'rockpeak'; k = 1.9; }
+    else if (f === 1) key = 'hills';
+    else if (f === 3) key = (H.temp[i] < 14 || H.elev[i] > 1800) ? 'pines' : 'forest';
+    else if (f === 4) key = 'jungle';
+    else if (f === 5) { key = 'wheat'; k = 1.2; }
+    else if (f === 6) { key = 'reeds'; k = 1.25; }
+    if (key) SPRITES.draw(ctx, key, x, y - px * 0.12, px * k);
   }
 }
 function icons(vis, px) {
@@ -286,9 +277,9 @@ function icons(vis, px) {
     const list = fl.filter(f => !showKinds || showKinds.has(f.kind)).slice(0, px > 40 ? 3 : 1);
     list.forEach((f, k) => {
       const [x, y] = toS(H.x[i], H.y[i]);
-      const ox = list.length > 1 ? (k - (list.length - 1) / 2) * fs * 0.95 : 0;
-      if (f.kind === 'wonder') { ctx.fillStyle = 'rgba(30,20,0,0.55)'; ctx.beginPath(); ctx.arc(x + ox, y, fs * .62, 0, 7); ctx.fill(); ctx.strokeStyle = '#f3d27a'; ctx.lineWidth = 1.5; ctx.stroke(); }
-      ctx.fillText(f.ic, x + ox, y + 1);
+      const ox = list.length > 1 ? (k - (list.length - 1) / 2) * Math.min(46, px * 0.7) : 0;
+      if (f.sp) SPRITES.draw(ctx, f.sp, x + ox, y, Math.min(f.kind === 'wonder' ? 64 : 48, px * (f.kind === 'wonder' ? 0.95 : 0.72)));
+      else ctx.fillText(f.ic, x + ox, y + 1);
     });
   }
 }
