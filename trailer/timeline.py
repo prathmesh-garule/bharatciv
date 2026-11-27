@@ -47,7 +47,7 @@ shot('drop_logo', T(8), T(10), 'terrain', 'delhi', 9.0, 'india', 1.0, 'expo', 'c
 TOUR = [('elev', 'himalaya', 2.2, 'kashmir', 2.6), ('rain', 'ghats', 2.6, 'south', 2.3), ('pop', 'ganga', 2.0, 'kolkata', 2.4),
         ('gold', 'mumbai', 3.2, 'mumbai', 4.2), ('faith', 'punjab', 2.0, 'kashmir', 2.2), ('power', 'coalbelt', 3.6, 'coalbelt', 4.6),
         ('trade', 'delhi', 4.0, 'delhi', 2.6), ('dis', 'bay', 1.8, 'bay', 2.3), ('deg', 'south', 2.4, 'bengaluru', 3.0),
-        ('st', 'northeast', 2.4, 'central', 2.0), ('terrain', 'varanasi', 4.8, 'varanasi', 6.2), ('terrain', 'agra', 7.5, 'agra', 5.6)]
+        ('st', 'northeast', 2.4, 'central', 2.0), ('terrain', 'varanasi', 16.0, 'varanasi', 19.0), ('terrain', 'agra', 14.0, 'agra', 10.0)]
 for k, (l, a, za, b, zb) in enumerate(TOUR):
     shot('tour_%d' % k, T(10 + k // 2, (k % 2) * 2), T(10 + k // 2, (k % 2) * 2 + 2), l, a, za, b, zb, 'inout', 'map')
 # ---- break (bars 16-18): Mumbai City View
