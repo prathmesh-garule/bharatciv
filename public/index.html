@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BharatCiv — India as a Civilization map, built from real data</title>
+<meta name="description" content="A Civilization-style hex map of India built from 20+ real public datasets: Census 2011, state GDP, power plants, railways, elevation, climate, earthquakes, cyclones, heritage sites and more.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><polygon points='50,4 90,27 90,73 50,96 10,73 10,27' fill='%23d9a441' stroke='%23402a10' stroke-width='6'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header id="top">
+  <div class="brand"><span class="hexlogo"></span><span>Bharat<b>Civ</b></span></div>
+  <div class="yields" id="natYields"></div>
+  <div class="search"><input id="search" placeholder="Find a city or district…" autocomplete="off"><div id="searchRes"></div></div>
+  <button id="btnAdvisors" class="btn">Advisors</button>
+  <button id="btnExplorer" class="btn">Explorer</button>
+  <button id="btnAbout" class="btn round" title="About & sources">?</button>
+</header>
+
+<div id="lenses"><div class="lenstitle">Lenses</div><div id="lensList"></div></div>
+<canvas id="map"></canvas>
+<div id="legend"></div>
+<div id="tooltip"></div>
+<aside id="panel" class="hidden"><button class="close" data-close="panel">×</button><div id="panelBody"></div></aside>
+
+<div id="modal" class="hidden"><div class="modalBox"><button class="close" data-close="modal">×</button><div id="modalBody"></div></div></div>
+<div id="loading"><div class="hexlogo big spin"></div><div>Surveying the subcontinent…</div></div>
+<script src="app.js"></script>
+</body>
+</html>

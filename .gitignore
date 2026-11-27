@@ -1,0 +1,6 @@
+data/raw/
+data/work/grid.json
+data/work_log.txt
+__pycache__/
+.vercel
+.claude/settings.local.json

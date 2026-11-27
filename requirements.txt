@@ -1,0 +1,6 @@
+numpy
+pandas
+lxml
+shapely>=2
+pyproj
+pyshp
